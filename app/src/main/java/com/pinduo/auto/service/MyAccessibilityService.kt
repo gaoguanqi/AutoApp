@@ -56,7 +56,9 @@ class MyAccessibilityService : AccessibilityService() {
 
             override fun onMark(mark: Long) {
                 LogUtils.logGGQ("onMark：${mark}")
+                uiHandler.clearMessage()
                 uiHandler.sendMessage("onMark：${mark}")
+
             }
 
             override fun onStop(name: String, job: String) {

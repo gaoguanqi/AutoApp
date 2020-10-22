@@ -12,14 +12,15 @@ import com.pinduo.auto.im.SocketClient
 import com.pinduo.auto.utils.LogUtils
 import com.pinduo.auto.widget.timer.MyScheduledExecutor
 import com.pinduo.auto.widget.timer.TimerTickListener
+import com.yhao.floatwindow.FloatWindow
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class MyAccessibilityService : AccessibilityService() {
 
 
-    private var socketClient:SocketClient? = null
-    private var runnable:MyScheduledExecutor? = null
+    private val socketClient by lazy { SocketClient.instance }
+    private val runnable by lazy { MyScheduledExecutor.INSTANCE }
 
     private val initialDelay:Long = 1L
     private val period:Long = 1L
@@ -32,18 +33,24 @@ class MyAccessibilityService : AccessibilityService() {
     override fun onCreate() {
         super.onCreate()
         FloatWindowAccessbility.INSTANCE.initService(this)
-        socketClient = SocketClient.instance
-        socketClient?.setListener(object : OnSocketListener{
+        (getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager).addAccessibilityStateChangeListener {
+            LogUtils.logGGQ("AccessibilityManager：${it}")
+            if(it){
+                FloatWindow.get()?.let {
+                    if(!it.isShowing) it.show()
+                }
+            }else{
+                FloatWindow.get()?.let {
+                    if(it.isShowing) it.hide()
+                }
+            }
+        }
+        socketClient.setListener(object : OnSocketListener{
             override fun call(entity: TaskEntity) {
                 LogUtils.logGGQ("收到数据：${entity.toString()}")
             }
         })
-
-        (getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager).addAccessibilityStateChangeListener {
-            LogUtils.logGGQ("AccessibilityManager：${it}")
-        }
-
-        runnable = MyScheduledExecutor(object :TimerTickListener{
+        runnable.setListener(object :TimerTickListener{
             override fun onStart(name: String, job: String) {
                 LogUtils.logGGQ("开始任务：${name} --- ${job}")
                 uiHandler.sendMessage("开始任务：${name} --- ${job}")
@@ -58,12 +65,12 @@ class MyAccessibilityService : AccessibilityService() {
                 LogUtils.logGGQ("onMark：${mark}")
                 uiHandler.clearMessage()
                 uiHandler.sendMessage("onMark：${mark}")
-
             }
 
             override fun onStop(name: String, job: String) {
                 LogUtils.logGGQ("结束任务：${name} --- ${job}")
                 uiHandler.sendMessage("结束任务：${name} --- ${job}")
+                //uiHandler.clearMessage()
             }
         })
     }
@@ -71,11 +78,11 @@ class MyAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-        socketClient?.onConnect()
-        runnable?.isRing()?.let {
+        socketClient.onConnect()
+        runnable.isRing().let {
             if(!it){
                 service.scheduleAtFixedRate(runnable,initialDelay,period, TimeUnit.SECONDS)
-                runnable?.onReStart("app","task",max)
+                runnable.onReStart("app","task",max)
             }
         }
 
@@ -86,11 +93,13 @@ class MyAccessibilityService : AccessibilityService() {
     }
 
     override fun onInterrupt() {
+        FloatWindow.destroy()
     }
 
 
     override fun onDestroy() {
         super.onDestroy()
+        FloatWindow.destroy()
     }
 
 

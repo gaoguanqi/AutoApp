@@ -1,12 +1,24 @@
 package com.pinduo.auto.widget.timer
 
-class MyScheduledExecutor(val tickListener:TimerTickListener): Runnable {
+
+class MyScheduledExecutor private constructor(): Runnable {
 
     private var tick:Long = 0L
     private var totalTime:Long = 0L
     private var isRing:Boolean = false
     private var name:String = ""
     private var job:String = ""
+    private var tickListener:TimerTickListener? = null
+
+    companion object {
+        val INSTANCE: MyScheduledExecutor by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED){
+            MyScheduledExecutor()
+        }
+    }
+
+    fun setListener(listener: TimerTickListener){
+        this.tickListener = listener
+    }
 
 
     fun isRing():Boolean{
@@ -20,26 +32,26 @@ class MyScheduledExecutor(val tickListener:TimerTickListener): Runnable {
         this.job = job
         this.totalTime = total
         this.isRing = true
-        this.tickListener.onStart(name,job)
+        this.tickListener?.onStart(name,job)
     }
 
     fun onStop(){
         this.isRing = false
-        this.tickListener.onStop(name,job)
+        this.tickListener?.onStop(name,job)
     }
 
     override fun run() {
         this.tick++
         if(isRing()){
             if(tick < totalTime){
-                this.tickListener.onTick(tick)
+                this.tickListener?.onTick(tick)
             }else if(tick == totalTime){
                 this.onStop()
             }
         }
         val mark:Long = tick % 100
         if(mark == 0L){
-            this.tickListener.onMark(mark)
+            this.tickListener?.onMark(mark)
         }
     }
 

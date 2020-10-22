@@ -1,8 +1,10 @@
 package com.pinduo.auto.ui
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
+import android.view.KeyEvent
 import android.view.View
 import com.pinduo.auto.R
 import com.pinduo.auto.app.MyApplication
@@ -10,10 +12,7 @@ import com.pinduo.auto.base.BaseActivity
 import com.pinduo.auto.utils.AccessibilityServiceUtils
 import com.pinduo.auto.utils.LogUtils
 import com.pinduo.auto.utils.ToastUtil
-import com.yhao.floatwindow.FloatWindow
-import com.yhao.floatwindow.PermissionListener
-import com.yhao.floatwindow.Screen
-import com.yhao.floatwindow.ViewStateListener
+import com.yhao.floatwindow.*
 import kotlinx.android.synthetic.main.activity_home.*
 
 class HomeActivity : BaseActivity() {
@@ -37,6 +36,7 @@ class HomeActivity : BaseActivity() {
         checkAccessibilityPermission()
     }
 
+    @SuppressLint("InflateParams")
     private fun initFloatWindow() {
         val view: View = this.layoutInflater.inflate(R.layout.layout_float_view,null)
         FloatWindow.with(getApplicationContext())
@@ -46,9 +46,13 @@ class HomeActivity : BaseActivity() {
             .setX(2)                                   //设置控件初始位置
             .setY(2)
             .setDesktopShow(true)                        //桌面显示
+            .setMoveType(MoveType.back) //可拖动，释放后自动回到原位置
             .setViewStateListener(MyViewStateListener())    //监听悬浮控件状态改变
             .setPermissionListener(MyPermissionListener())
             .build()
+        FloatWindow.get()?.let {
+            if(!it.isShowing)it.show()
+        }
     }
 
     inner class MyViewStateListener: ViewStateListener{
@@ -104,6 +108,13 @@ class HomeActivity : BaseActivity() {
         if(requestCode == REQUESTCODE_ACCESSIBILITY){
             checkAccessibilityPermission()
         }
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        if(keyCode == KeyEvent.KEYCODE_BACK){
+            this.moveTaskToBack(true)
+        }
+        return super.onKeyDown(keyCode, event)
     }
 
     override fun onDestroy() {

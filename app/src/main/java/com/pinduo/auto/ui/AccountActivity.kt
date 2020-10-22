@@ -25,10 +25,10 @@ class AccountActivity : BaseActivity() {
     override fun initData(savedInstanceState: Bundle?) {
 
         tv_imei.setText(IMEIUtils.getDeviceId())
-        et_id.setText("gaoguanqi")
+        et_username.setText("gaoguanqi")
         btn_bind.setOnClickListener {
-            val username:String? = tv_imei.text.toString().trim()
-            val imei:String? = et_id.text.toString().trim()
+            val username:String? = et_username.text.toString().trim()
+            val imei:String? = tv_imei.text.toString().trim()
             LogUtils.logGGQ("username:${username} --- imei:${imei}")
             if(TextUtils.isEmpty(username) || TextUtils.isEmpty(imei)){
                 showTopMessage("请输入绑定的号码")

@@ -12,6 +12,18 @@
         android:padding="10dp"
         android:layout_gravity="center"
         android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_imei"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorPrimaryDark"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:padding="20dp"
+            tools:text="测试" />
+
+
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/sw_float_window"
             android:layout_width="match_parent"

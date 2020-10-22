@@ -5,7 +5,9 @@ import android.content.Context
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
 import com.pinduo.auto.app.MyApplication
+import com.pinduo.auto.core.CommonAccessbility
 import com.pinduo.auto.core.FloatWindowAccessbility
+import com.pinduo.auto.core.LivePlayAccessibility
 import com.pinduo.auto.http.entity.TaskEntity
 import com.pinduo.auto.im.OnSocketListener
 import com.pinduo.auto.im.SocketClient
@@ -32,22 +34,31 @@ class MyAccessibilityService : AccessibilityService() {
 
     override fun onCreate() {
         super.onCreate()
+        CommonAccessbility.INSTANCE.initService(this)
         FloatWindowAccessbility.INSTANCE.initService(this)
+        LivePlayAccessibility.INSTANCE.initService(this)
+
         (getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager).addAccessibilityStateChangeListener {
             LogUtils.logGGQ("AccessibilityManager：${it}")
             if(it){
-                FloatWindow.get()?.let {
-                    if(!it.isShowing) it.show()
+                FloatWindow.get()?.apply {
+                    if(!this.isShowing){
+                        this.show()
+                    }
                 }
             }else{
-                FloatWindow.get()?.let {
-                    if(it.isShowing) it.hide()
+                FloatWindow.get()?.apply {
+                    if(this.isShowing) {
+                        this.hide()
+                    }
                 }
             }
         }
+
         socketClient.setListener(object : OnSocketListener{
             override fun call(entity: TaskEntity) {
                 LogUtils.logGGQ("收到数据：${entity.toString()}")
+                LivePlayAccessibility.INSTANCE.doLive()
             }
         })
         runnable.setListener(object :TimerTickListener{
@@ -93,13 +104,13 @@ class MyAccessibilityService : AccessibilityService() {
     }
 
     override fun onInterrupt() {
-        FloatWindow.destroy()
+        LogUtils.logGGQ("onInterrupt")
     }
 
 
     override fun onDestroy() {
         super.onDestroy()
-        FloatWindow.destroy()
+        LogUtils.logGGQ("onDestroy")
     }
 
 

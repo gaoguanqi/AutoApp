@@ -11,7 +11,7 @@
 
 
     <EditText
-        android:id="@+id/et_id"
+        android:id="@+id/et_username"
         android:layout_width="match_parent"
         android:layout_height="42dp"
         android:gravity="center_vertical"

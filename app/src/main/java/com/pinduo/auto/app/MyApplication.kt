@@ -101,4 +101,11 @@ class MyApplication:Application() {
             LogUtils.logGGQ("FloatWindow onFail")
         }
     }
+
+    override fun onTerminate() {
+        super.onTerminate()
+        LogUtils.logGGQ("app onTerminate")
+        FloatWindow.destroy()
+    }
+
 }

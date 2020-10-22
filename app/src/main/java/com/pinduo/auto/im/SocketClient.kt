@@ -1,8 +1,11 @@
 package com.pinduo.auto.im
 
+import android.text.TextUtils
 import com.google.gson.Gson
+import com.pinduo.auto.app.MyApplication
 import com.pinduo.auto.app.config.Config
 import com.pinduo.auto.http.entity.TaskEntity
+import com.pinduo.auto.utils.IMEIUtils
 import com.pinduo.auto.utils.LogUtils
 import io.socket.client.IO
 import io.socket.client.Socket
@@ -15,6 +18,9 @@ class SocketClient private constructor(){
     private val EVENT_TASK:String = "task"
     private var socket:Socket? = null
     private var listener:OnSocketListener? = null
+
+    private val uiHandler by lazy { MyApplication.instance.getUiHandler() }
+
 
     companion object{
         val instance: SocketClient by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED){
@@ -33,39 +39,59 @@ class SocketClient private constructor(){
         }
         socket?.on(Socket.EVENT_CONNECT,object : Emitter.Listener{
             override fun call(vararg args: Any?) {
-
+                socket?.let {
+                    if(it.connected()){
+                        uiHandler.sendMessage("已连接")
+                        val imei:String = IMEIUtils.getIMEI()
+                        if(TextUtils.isEmpty(imei)){
+                            uiHandler.sendMessage("imei empty")
+                        }else{
+                            uiHandler.sendMessage(imei)
+                            sendMessage("login",imei)
+                            LogUtils.logGGQ("imei:${imei}")
+                        }
+                    }
+                }
             }
         })?.on(Socket.EVENT_CONNECTING,object : Emitter.Listener{
             override fun call(vararg args: Any?) {
-
+                LogUtils.logGGQ("EVENT_CONNECTING")
+                uiHandler.sendMessage("连接中...")
             }
         })?.on(Socket.EVENT_DISCONNECT,object : Emitter.Listener{
             override fun call(vararg args: Any?) {
-
+                LogUtils.logGGQ("EVENT_DISCONNECT")
+                uiHandler.sendMessage("连接断开")
             }
         })?.on(Socket.EVENT_CONNECT_TIMEOUT,object : Emitter.Listener{
             override fun call(vararg args: Any?) {
-
+                LogUtils.logGGQ("EVENT_CONNECT_TIMEOUT")
+                uiHandler.sendMessage("连接超时")
             }
         })?.on(Socket.EVENT_ERROR,object : Emitter.Listener{
             override fun call(vararg args: Any?) {
-
+                LogUtils.logGGQ("EVENT_ERROR")
+                uiHandler.sendMessage("连接错误")
             }
         })?.on(Socket.EVENT_RECONNECT,object : Emitter.Listener{
             override fun call(vararg args: Any?) {
-
+                LogUtils.logGGQ("EVENT_RECONNECT")
+                uiHandler.sendMessage("重连")
             }
         })?.on(Socket.EVENT_RECONNECTING,object : Emitter.Listener{
             override fun call(vararg args: Any?) {
-
+                LogUtils.logGGQ("EVENT_RECONNECTING")
+                uiHandler.sendMessage("重连中...")
             }
         })?.on(Socket.EVENT_RECONNECT_FAILED,object : Emitter.Listener{
             override fun call(vararg args: Any?) {
-
+                LogUtils.logGGQ("EVENT_RECONNECT_FAILED")
+                uiHandler.sendMessage("重连失败")
             }
         })?.on(Socket.EVENT_RECONNECT_ERROR,object : Emitter.Listener{
             override fun call(vararg args: Any?) {
-
+                LogUtils.logGGQ("EVENT_RECONNECT_ERROR")
+                uiHandler.sendMessage("重连错误")
             }
         })?.on(EVENT_TASK,object :Emitter.Listener{
             override fun call(vararg args: Any?) {
@@ -73,6 +99,7 @@ class SocketClient private constructor(){
                     args?.let {
                         val arg = it[0]
                         arg?.let {
+                            LogUtils.logGGQ("收到消息:${it}")
                             val taskEntity:TaskEntity = Gson().fromJson<TaskEntity>(it.toString(),TaskEntity::class.java)
                             listener?.let { it.call(taskEntity) }?:let {  LogUtils.logGGQ("listener is null") }
                         }?:let {
@@ -82,6 +109,7 @@ class SocketClient private constructor(){
                 }catch (e:Exception){
                     e.printStackTrace()
                     LogUtils.logGGQ("${EVENT_TASK} error -->>>${e.printStackTrace()}")
+                    uiHandler.sendMessage("数据异常！！！")
                 }
             }
         })
@@ -93,6 +121,14 @@ class SocketClient private constructor(){
 
     fun onConnect(){
         socket?.connect()
+    }
+
+    private fun sendMessage(msg:String){
+        sendMessage(EVENT_TASK,msg)
+    }
+
+    private fun sendMessage(key:String,msg:String){
+        socket?.emit(key,msg)
     }
 
 }

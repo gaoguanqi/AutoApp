@@ -8,6 +8,7 @@ import com.pinduo.auto.R
 import com.pinduo.auto.app.MyApplication
 import com.pinduo.auto.base.BaseActivity
 import com.pinduo.auto.utils.AccessibilityServiceUtils
+import com.pinduo.auto.utils.IMEIUtils
 import com.pinduo.auto.utils.LogUtils
 import com.yhao.floatwindow.FloatWindow
 import kotlinx.android.synthetic.main.activity_home.*
@@ -19,6 +20,7 @@ class HomeActivity : BaseActivity() {
     override fun getLayoutId(): Int = R.layout.activity_home
 
     override fun initData(savedInstanceState: Bundle?) {
+        tv_imei.setText(IMEIUtils.getIMEI())
         sw_float_window.setOnCheckedChangeListener { buttonView, isChecked ->
             if (isChecked) {
                 FloatWindow.get()?.let {
@@ -63,10 +65,5 @@ class HomeActivity : BaseActivity() {
             this.moveTaskToBack(true)
         }
         return super.onKeyDown(keyCode, event)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        FloatWindow.destroy()
     }
 }

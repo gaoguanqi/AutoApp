@@ -15,7 +15,12 @@ import java.net.URISyntaxException
 
 class SocketClient private constructor(){
 
+    //任务消息
     private val EVENT_TASK:String = "task"
+
+    //收到消息回馈
+    private val RECEIVE_STATUS:String = "receive_status"
+
     private var socket:Socket? = null
     private var listener:OnSocketListener? = null
 
@@ -41,7 +46,7 @@ class SocketClient private constructor(){
             override fun call(vararg args: Any?) {
                 socket?.let {
                     if(it.connected()){
-                        uiHandler.sendMessage("已连接")
+                        uiHandler.sendMessage("已连接："+ it.id())
                         val imei:String = IMEIUtils.getIMEI()
                         if(TextUtils.isEmpty(imei)){
                             uiHandler.sendMessage("imei empty")
@@ -129,6 +134,19 @@ class SocketClient private constructor(){
 
     private fun sendMessage(key:String,msg:String){
         socket?.emit(key,msg)
+    }
+
+    // 回馈
+    fun onReceiveStatus(){
+        sendMessage(RECEIVE_STATUS,"1")
+    }
+
+    fun sendParentSuccess(){
+        sendMessage(EVENT_TASK,"status=101")
+    }
+
+    fun sendParentError(){
+        sendMessage(EVENT_TASK,"status=100")
     }
 
 }

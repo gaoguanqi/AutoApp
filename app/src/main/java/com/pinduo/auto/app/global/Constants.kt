@@ -19,10 +19,23 @@ class Constants {
     }
 
     object GlobalValue {
-
+        const val douyinPackage = "com.ss.android.ugc.aweme"
     }
 
     object BundleKey {
+
+    }
+
+
+    object Task{
+        const val douyin = "1"
+        const val kuaishou = "2"
+
+        const val task1 = "1"
+        const val task2 = "2"
+        const val task3 = "3"
+
+
 
     }
 }

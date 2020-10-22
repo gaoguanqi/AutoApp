@@ -3,11 +3,13 @@ package com.pinduo.auto.app
 import android.annotation.SuppressLint
 import android.app.Application
 import android.view.View
+import androidx.lifecycle.ProcessLifecycleOwner
 import com.blankj.utilcode.util.AppUtils
 import com.blankj.utilcode.util.SPUtils
 import com.blankj.utilcode.util.Utils
 import com.pinduo.auto.R
 import com.pinduo.auto.app.manager.AppLifeCycleCallBack
+import com.pinduo.auto.app.manager.ForebackLifeObserver
 import com.pinduo.auto.extensions.layoutInflater
 import com.pinduo.auto.utils.LogUtils
 import com.pinduo.auto.utils.UiHandler
@@ -37,6 +39,7 @@ class MyApplication:Application() {
         Utils.init(this)
         SPUtils.getInstance(AppUtils.getAppPackageName())
         registerActivityLifecycleCallbacks(AppLifeCycleCallBack())
+        ProcessLifecycleOwner.get().lifecycle.addObserver(ForebackLifeObserver())
         initFloatWindow()
     }
 

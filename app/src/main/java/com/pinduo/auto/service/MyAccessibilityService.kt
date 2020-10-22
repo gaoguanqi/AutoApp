@@ -2,9 +2,11 @@ package com.pinduo.auto.service
 
 import android.accessibilityservice.AccessibilityService
 import android.content.Context
+import android.text.TextUtils
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
 import com.pinduo.auto.app.MyApplication
+import com.pinduo.auto.app.global.Constants
 import com.pinduo.auto.core.CommonAccessbility
 import com.pinduo.auto.core.FloatWindowAccessbility
 import com.pinduo.auto.core.LivePlayAccessibility
@@ -58,7 +60,35 @@ class MyAccessibilityService : AccessibilityService() {
         socketClient.setListener(object : OnSocketListener{
             override fun call(entity: TaskEntity) {
                 LogUtils.logGGQ("收到数据：${entity.toString()}")
-                LivePlayAccessibility.INSTANCE.doLive()
+                val task:String = entity.task
+
+                val message:String = entity.message
+                if(!TextUtils.isEmpty(message) && TextUtils.equals("stop",message)) {
+                    uiHandler.sendMessage("message：${message}")
+                    return
+                }
+
+                when(task){
+                    Constants.Task.task1 ->{
+
+                    }
+                    Constants.Task.task2 ->{
+
+                    }
+                    Constants.Task.task3 ->{
+                        val software:String = entity.software
+                        val zxTime:String = entity.zx_time  // 60秒
+                        val zhiboNum:String = entity.zhibo_num
+
+                        if(TextUtils.isEmpty(software) && TextUtils.isEmpty(zxTime) && TextUtils.isEmpty(zhiboNum)){
+                            LogUtils.logGGQ("数据有误")
+                        }else{
+                            socketClient.onReceiveStatus()
+                            runnable.onReStart(software,task,zxTime.toLong())
+                            LivePlayAccessibility.INSTANCE.doLive(software,zhiboNum)
+                        }
+                    }
+                }
             }
         })
         runnable.setListener(object :TimerTickListener{
@@ -82,6 +112,7 @@ class MyAccessibilityService : AccessibilityService() {
                 LogUtils.logGGQ("结束任务：${name} --- ${job}")
                 uiHandler.sendMessage("结束任务：${name} --- ${job}")
                 //uiHandler.clearMessage()
+                socketClient.sendParentSuccess()
             }
         })
     }

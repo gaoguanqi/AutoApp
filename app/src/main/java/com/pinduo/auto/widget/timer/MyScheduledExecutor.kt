@@ -44,7 +44,10 @@ class MyScheduledExecutor private constructor(): Runnable {
         this.tick++
         if(isRing()){
             if(tick < totalTime){
-                this.tickListener?.onTick(tick)
+                val t:Long = tick % 10
+                if(t == 0L){
+                    this.tickListener?.onTick(tick)
+                }
             }else if(tick == totalTime){
                 this.onStop()
             }

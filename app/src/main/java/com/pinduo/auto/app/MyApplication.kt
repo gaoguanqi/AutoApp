@@ -53,7 +53,7 @@ class MyApplication:Application() {
             .setX(2)                                   //设置控件初始位置
             .setY(2)
             .setDesktopShow(true)                        //桌面显示
-            .setMoveType(MoveType.back) //可拖动，释放后自动回到原位置
+            .setMoveType(MoveType.active) //可拖动，释放后自动回到原位置
             .setViewStateListener(MyViewStateListener())    //监听悬浮控件状态改变
             .setPermissionListener(MyPermissionListener())
             .build()

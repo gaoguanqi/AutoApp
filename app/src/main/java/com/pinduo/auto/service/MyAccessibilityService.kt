@@ -14,6 +14,7 @@ import com.pinduo.auto.http.entity.TaskEntity
 import com.pinduo.auto.im.OnSocketListener
 import com.pinduo.auto.im.SocketClient
 import com.pinduo.auto.utils.LogUtils
+import com.pinduo.auto.widget.observers.ObserverManager
 import com.pinduo.auto.widget.timer.MyScheduledExecutor
 import com.pinduo.auto.widget.timer.TimerTickListener
 import com.yhao.floatwindow.FloatWindow
@@ -64,6 +65,7 @@ class MyAccessibilityService : AccessibilityService() {
 
                 val message:String = entity.message
                 if(!TextUtils.isEmpty(message) && TextUtils.equals("stop",message)) {
+                    ObserverManager.instance.remove(Constants.Task.task3)
                     uiHandler.sendMessage("message：${message}")
                     return
                 }
@@ -131,7 +133,31 @@ class MyAccessibilityService : AccessibilityService() {
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        val packageName:String? = event?.packageName.toString()
+        if(!TextUtils.isEmpty(packageName)){
+            if(TextUtils.equals(Constants.GlobalValue.douyinPackage,packageName)){
+                val className:String? = event?.className.toString()
+                className?.let {
+                    when(it){
+                        Constants.Douyin.PAGE_MAIN ->{
+                            ObserverManager.instance.notifyObserver(Constants.Task.task3,it)
+                        }
 
+                        Constants.Douyin.PAGE_LIVE_ROOM ->{
+                            ObserverManager.instance.notifyObserver(Constants.Task.task3,it)
+                        }
+                    }
+                }
+            }else if(TextUtils.equals(Constants.GlobalValue.kuaishouPackage,packageName)){
+                val className:String? = event?.className.toString()
+                className?.let {
+                    when(it){
+
+                    }
+                }
+
+            }
+        }
     }
 
     override fun onInterrupt() {

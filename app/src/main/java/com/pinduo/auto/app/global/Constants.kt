@@ -20,6 +20,7 @@ class Constants {
 
     object GlobalValue {
         const val douyinPackage = "com.ss.android.ugc.aweme"
+        const val kuaishouPackage = "com.smile.gifmaker"
     }
 
     object BundleKey {
@@ -37,5 +38,10 @@ class Constants {
 
 
 
+    }
+
+    object Douyin {
+        const val PAGE_MAIN = "com.ss.android.ugc.aweme.main.MainActivity"
+        const val PAGE_LIVE_ROOM = "com.ss.android.ugc.aweme.live.LivePlayActivity"
     }
 }

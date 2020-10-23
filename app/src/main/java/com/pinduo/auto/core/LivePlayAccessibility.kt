@@ -11,6 +11,8 @@ import com.pinduo.auto.app.global.Constants
 import com.pinduo.auto.utils.LogUtils
 import com.pinduo.auto.utils.TaskUtils
 import com.pinduo.auto.utils.WaitUtil
+import com.pinduo.auto.widget.observers.ObserverListener
+import com.pinduo.auto.widget.observers.ObserverManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -18,7 +20,7 @@ import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
 import java.net.URL
 
-class LivePlayAccessibility private constructor():BaseAccessbility() {
+class LivePlayAccessibility private constructor():BaseAccessbility(), ObserverListener {
 
     companion object {
         val INSTANCE:LivePlayAccessibility by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED){
@@ -30,9 +32,9 @@ class LivePlayAccessibility private constructor():BaseAccessbility() {
         super.initService(service)
     }
 
-
     fun doLive(software: String, zhiboNum: String) {
         if(TextUtils.equals(Constants.Task.douyin,software)){
+            ObserverManager.instance.add(Constants.Task.task3,this)
             GlobalScope.launch(Dispatchers.Main) {
                 try {
                     withContext(Dispatchers.Default) {
@@ -63,6 +65,18 @@ class LivePlayAccessibility private constructor():BaseAccessbility() {
         return realUrl
     }
 
+    override fun observer(content: String) {
+        LogUtils.logGGQ("监听到页面：${content}")
+        when(content) {
+            Constants.Douyin.PAGE_MAIN -> {
+                MyApplication.instance.getUiHandler().sendMessage("回到首页")
+            }
+
+            Constants.Douyin.PAGE_LIVE_ROOM ->{
+                MyApplication.instance.getUiHandler().sendMessage("进入直播间")
+            }
+        }
+    }
 
 
 }

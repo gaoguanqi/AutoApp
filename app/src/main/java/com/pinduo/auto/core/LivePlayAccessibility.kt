@@ -22,11 +22,35 @@ import java.net.URL
 
 class LivePlayAccessibility private constructor():BaseAccessbility(), ObserverListener {
 
+
+    private var roomId:String = ""
+
+    private var isRoom:Boolean = false
+
+
+
     companion object {
         val INSTANCE:LivePlayAccessibility by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED){
             LivePlayAccessibility()
         }
     }
+
+    fun getRoomId():String {
+        return roomId
+    }
+
+    fun setRoomId(id:String){
+        this.roomId = id
+    }
+
+    fun getOnRoom():Boolean{
+        return isRoom
+    }
+
+    fun setOnRoom(isOn:Boolean){
+        this.isRoom = isOn
+    }
+
 
     override fun initService(service: AccessibilityService) {
         super.initService(service)
@@ -41,10 +65,9 @@ class LivePlayAccessibility private constructor():BaseAccessbility(), ObserverLi
                         httpGetURL(zhiboNum)
                     }.let {
                         LogUtils.logGGQ("真是URL：${it}")
-                        val roomId:String = TaskUtils.subRoomId(it)
-                        val intent: Intent = Intent(Intent.ACTION_VIEW, Uri.parse("snssdk1128://live?room_id=${roomId}"))
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                        MyApplication.instance.startActivity(intent)
+                        val id:String = TaskUtils.subRoomId(it)
+                        setRoomId(id)
+                        startLiveRoom()
                     }
                 }catch (e:Exception){
                     e.printStackTrace()
@@ -52,6 +75,21 @@ class LivePlayAccessibility private constructor():BaseAccessbility(), ObserverLi
             }
         }else if(TextUtils.equals(Constants.Task.kuaishou,software)){
 
+        }
+    }
+    var lastClickTime: Long = 0
+    var SPACE_TIME: Long = 3000
+
+    private fun startLiveRoom() {
+        val currentTime = System.currentTimeMillis()
+        if(!getOnRoom() && !TextUtils.isEmpty(getRoomId()) && currentTime - lastClickTime > SPACE_TIME){
+            val intent: Intent = Intent(Intent.ACTION_VIEW, Uri.parse("snssdk1128://live?room_id=${getRoomId()}"))
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            MyApplication.instance.startActivity(intent)
+            setOnRoom(true)
+            MyApplication.instance.getUiHandler().sendMessage("<<<直播间>>>")
+        }else{
+            setOnRoom(false)
         }
     }
 
@@ -70,6 +108,7 @@ class LivePlayAccessibility private constructor():BaseAccessbility(), ObserverLi
         when(content) {
             Constants.Douyin.PAGE_MAIN -> {
                 MyApplication.instance.getUiHandler().sendMessage("回到首页")
+                startLiveRoom()
             }
 
             Constants.Douyin.PAGE_LIVE_ROOM ->{

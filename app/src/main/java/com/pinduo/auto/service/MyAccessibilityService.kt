@@ -65,6 +65,7 @@ class MyAccessibilityService : AccessibilityService() {
 
                 val message:String = entity.message
                 if(!TextUtils.isEmpty(message) && TextUtils.equals("stop",message)) {
+                    LivePlayAccessibility.INSTANCE.setRoomId("")
                     ObserverManager.instance.remove(Constants.Task.task3)
                     uiHandler.sendMessage("message：${message}")
                     return

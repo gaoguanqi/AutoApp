@@ -71,12 +71,15 @@ class LivePlayAccessibility private constructor():BaseAccessbility(), ObserverLi
                     }
                 }catch (e:Exception){
                     e.printStackTrace()
+                    MyApplication.instance.getUiHandler().sendMessage("doLive e:${e}")
                 }
             }
         }else if(TextUtils.equals(Constants.Task.kuaishou,software)){
 
         }
     }
+
+    // 过滤 SPACE_TIME 事件内的重复页面
     var lastClickTime: Long = 0
     var SPACE_TIME: Long = 3000
 
@@ -108,11 +111,14 @@ class LivePlayAccessibility private constructor():BaseAccessbility(), ObserverLi
         when(content) {
             Constants.Douyin.PAGE_MAIN -> {
                 MyApplication.instance.getUiHandler().sendMessage("回到首页")
+                setOnRoom(false)
+                //如果在任务内回到首页,进入直播间
                 startLiveRoom()
             }
 
             Constants.Douyin.PAGE_LIVE_ROOM ->{
                 MyApplication.instance.getUiHandler().sendMessage("进入直播间")
+                setOnRoom(true)
             }
         }
     }

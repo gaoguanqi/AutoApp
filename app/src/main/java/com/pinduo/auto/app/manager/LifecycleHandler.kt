@@ -5,7 +5,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
-
+// 加入生命周期
 class LifecycleHandler(val lifecycleOwner: LifecycleOwner) : Handler(), LifecycleObserver {
 
     init {

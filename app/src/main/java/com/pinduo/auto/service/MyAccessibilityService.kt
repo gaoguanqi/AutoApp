@@ -68,6 +68,7 @@ class MyAccessibilityService : AccessibilityService() {
                     LivePlayAccessibility.INSTANCE.setRoomId("")
                     LivePlayAccessibility.INSTANCE.setOnRoom(false)
                     ObserverManager.instance.remove(Constants.Task.task3)
+                    CommonAccessbility.INSTANCE.douyin2Main()
                     uiHandler.sendMessage("message：${message}")
                     return
                 }
@@ -84,8 +85,12 @@ class MyAccessibilityService : AccessibilityService() {
                         val zxTime:String = entity.zx_time  // 60秒
                         val zhiboNum:String = entity.zhibo_num
 
+                        LivePlayAccessibility.INSTANCE.setRoomId("")
+                        LivePlayAccessibility.INSTANCE.setOnRoom(false)
+
                         if(TextUtils.isEmpty(software) && TextUtils.isEmpty(zxTime) && TextUtils.isEmpty(zhiboNum)){
                             LogUtils.logGGQ("数据有误")
+                            uiHandler.sendMessage("开始任-->>>数据有误")
                         }else{
                             socketClient.onReceiveStatus()
                             runnable.onReStart(software,task,zxTime.toLong())

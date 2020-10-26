@@ -5,6 +5,9 @@ import android.content.Context
 import android.text.TextUtils
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityManager
+import cn.vove7.andro_accessibility_api.AccessibilityApi
+import cn.vove7.andro_accessibility_api.api.waitForApp
+import cn.vove7.andro_accessibility_api.api.withId
 import com.pinduo.auto.app.MyApplication
 import com.pinduo.auto.app.global.Constants
 import com.pinduo.auto.core.CommonAccessbility
@@ -21,7 +24,7 @@ import com.yhao.floatwindow.FloatWindow
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
-class MyAccessibilityService : AccessibilityService() {
+class MyAccessibilityService : AccessibilityApi() {
 
 
     private val socketClient by lazy { SocketClient.instance }
@@ -40,6 +43,9 @@ class MyAccessibilityService : AccessibilityService() {
         CommonAccessbility.INSTANCE.initService(this)
         FloatWindowAccessbility.INSTANCE.initService(this)
         LivePlayAccessibility.INSTANCE.initService(this)
+
+
+
 
         (getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager).addAccessibilityStateChangeListener {
             LogUtils.logGGQ("AccessibilityManager：${it}")
@@ -61,40 +67,62 @@ class MyAccessibilityService : AccessibilityService() {
         socketClient.setListener(object : OnSocketListener{
             override fun call(entity: TaskEntity) {
                 LogUtils.logGGQ("收到数据：${entity.toString()}")
+                val software:String = entity.software
                 val task:String = entity.task
-
                 val message:String = entity.message
-                if(!TextUtils.isEmpty(message) && TextUtils.equals("stop",message)) {
-                    LivePlayAccessibility.INSTANCE.setRoomId("")
-                    LivePlayAccessibility.INSTANCE.setOnRoom(false)
-                    ObserverManager.instance.remove(Constants.Task.task3)
-                    CommonAccessbility.INSTANCE.douyin2Main()
+                if(TextUtils.isEmpty(software)){
                     uiHandler.sendMessage("message：${message}")
-                    return
-                }
+                }else{
+                    if(!TextUtils.isEmpty(message) && TextUtils.equals("stop",message)) {
+                        if(TextUtils.equals(Constants.Task.douyin,software)){
+                            when(task){
+                                Constants.Task.task3 ->{
+                                    LivePlayAccessibility.INSTANCE.setRoomId("")
+                                    LivePlayAccessibility.INSTANCE.setOnRoom(false)
+                                    ObserverManager.instance.remove(Constants.Task.task3)
+                                    CommonAccessbility.INSTANCE.douyin2Main()
+                                    uiHandler.sendMessage("message：${message}")
+                                }
+                            }
+                        }else if(TextUtils.equals(Constants.Task.kuaishou,software)){
 
-                when(task){
-                    Constants.Task.task1 ->{
-
+                        }
+                        return
                     }
-                    Constants.Task.task2 ->{
 
-                    }
-                    Constants.Task.task3 ->{
-                        val software:String = entity.software
-                        val zxTime:String = entity.zx_time  // 60秒
-                        val zhiboNum:String = entity.zhibo_num
+                    when(task){
+                        Constants.Task.task1 ->{
 
-                        LivePlayAccessibility.INSTANCE.setRoomId("")
-                        LivePlayAccessibility.INSTANCE.setOnRoom(false)
+                        }
+                        Constants.Task.task2 ->{
 
-                        if(TextUtils.isEmpty(software) && TextUtils.isEmpty(zxTime) && TextUtils.isEmpty(zhiboNum)){
-                            LogUtils.logGGQ("数据有误")
-                            uiHandler.sendMessage("开始任-->>>数据有误")
-                        }else{
-                            socketClient.onReceiveStatus()
-                            runnable.onReStart(software,task,zxTime.toLong())
-                            LivePlayAccessibility.INSTANCE.doLive(software,zhiboNum)
+                        }
+                        Constants.Task.task3 ->{
+
+                            val zxTime:String = entity.zx_time  // 60秒
+                            val zhiboNum:String = entity.zhibo_num
+
+                            LivePlayAccessibility.INSTANCE.setRoomId("")
+                            LivePlayAccessibility.INSTANCE.setOnRoom(false)
+
+                            if(TextUtils.isEmpty(software) && TextUtils.isEmpty(zxTime) && TextUtils.isEmpty(zhiboNum)){
+                                LogUtils.logGGQ("数据有误")
+                                uiHandler.sendMessage("开始任-->>>数据有误")
+                            }else{
+                                socketClient.onReceiveStatus()
+                                runnable.onReStart(software,task,zxTime.toLong())
+                                LivePlayAccessibility.INSTANCE.doLive(software,zhiboNum)
+                            }
+                        }
+
+                        Constants.Task.task4 ->{
+                            uiHandler.sendMessage("收到任务：${task}")
+                            val content:String = entity.fayan
+                            if(LivePlayAccessibility.INSTANCE.getOnRoom()){
+                                LivePlayAccessibility.INSTANCE.speak(software,content)
+                            }else{
+                                uiHandler.sendMessage("---不在直播间---")
+                            }
                         }
                     }
                 }
@@ -137,7 +165,21 @@ class MyAccessibilityService : AccessibilityService() {
             }
         }
 
+
+
+
+
+
+
     }
+
+
+    override val enableListenAppScope: Boolean
+        get() = true
+
+
+
+
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         val packageName:String? = event?.packageName.toString()

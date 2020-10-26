@@ -4,9 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings
 import android.view.KeyEvent
+import cn.vove7.andro_accessibility_api.api.requireBaseAccessibility
+import cn.vove7.andro_accessibility_api.api.requireGestureAccessibility
 import com.pinduo.auto.R
 import com.pinduo.auto.app.MyApplication
 import com.pinduo.auto.base.BaseActivity
+import com.pinduo.auto.service.MyAccessibilityService
 import com.pinduo.auto.utils.AccessibilityServiceUtils
 import com.pinduo.auto.utils.IMEIUtils
 import com.pinduo.auto.utils.LogUtils
@@ -37,6 +40,9 @@ class HomeActivity : BaseActivity() {
 
 
     private fun checkAccessibilityPermission() {
+
+
+
         if (AccessibilityServiceUtils.isAccessibilitySettingsOn(MyApplication.instance)) {
             LogUtils.logGGQ("无障碍已开启")
             FloatWindow.get()?.let {

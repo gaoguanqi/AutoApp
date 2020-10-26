@@ -4,11 +4,13 @@ import android.accessibilityservice.AccessibilityService
 import android.content.Intent
 import android.net.Uri
 import android.text.TextUtils
+import cn.vove7.andro_accessibility_api.api.withId
 import com.blankj.utilcode.util.ActivityUtils
 import com.blankj.utilcode.util.AppUtils
 import com.pinduo.auto.app.MyApplication
 import com.pinduo.auto.app.global.Constants
 import com.pinduo.auto.utils.LogUtils
+import com.pinduo.auto.utils.NodeUtil
 import com.pinduo.auto.utils.TaskUtils
 import com.pinduo.auto.utils.WaitUtil
 import com.pinduo.auto.widget.observers.ObserverListener
@@ -121,6 +123,21 @@ class LivePlayAccessibility private constructor():BaseAccessbility(), ObserverLi
                 setOnRoom(true)
             }
         }
+    }
+
+
+    // 发评论
+    fun speak(software: String, content: String) {
+        val newContent:String = TaskUtils.handContent(content)
+//        val result:Boolean = NodeUtil.addTxt2Edit(service,newContent)
+//        MyApplication.instance.getUiHandler().sendMessage("结果：${result}")
+//        val nodes = NodeUtil.findNodeById(service,"")
+
+        val b = withId("b2c").click()
+
+        MyApplication.instance.getUiHandler().sendMessage("结果：${b}")
+
+
     }
 
 

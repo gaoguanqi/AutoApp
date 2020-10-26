@@ -113,7 +113,7 @@ class SocketClient private constructor(){
                     }
                 }catch (e:Exception){
                     e.printStackTrace()
-                    LogUtils.logGGQ("${EVENT_TASK} error -->>>${e.printStackTrace()}")
+                    LogUtils.logGGQ("${EVENT_TASK} error -->>>${e}")
                     uiHandler.sendMessage("数据异常！！！")
                 }
             }

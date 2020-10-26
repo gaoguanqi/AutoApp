@@ -18,5 +18,8 @@ data class TaskEntity(val code:Int = 0,
                       val sw_id_url:String = "",
                       val content:String = "",
                       val interval:String = "",
-                      val zhibo_num:String = ""
+                      val zhibo_num:String = "",
+                      val is_attention:String = "",
+                      val hot_num:String = "",
+                      val is_send_heart:String
 )

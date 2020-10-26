@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Application
 import android.view.View
 import androidx.lifecycle.ProcessLifecycleOwner
+import cn.vove7.andro_accessibility_api.AccessibilityApi
 import com.blankj.utilcode.util.AppUtils
 import com.blankj.utilcode.util.SPUtils
 import com.blankj.utilcode.util.Utils
@@ -11,6 +12,7 @@ import com.pinduo.auto.R
 import com.pinduo.auto.app.manager.AppLifeCycleCallBack
 import com.pinduo.auto.app.manager.ForebackLifeObserver
 import com.pinduo.auto.extensions.layoutInflater
+import com.pinduo.auto.service.MyAccessibilityService
 import com.pinduo.auto.utils.LogUtils
 import com.pinduo.auto.utils.UiHandler
 import com.yhao.floatwindow.*
@@ -40,6 +42,9 @@ class MyApplication:Application() {
         SPUtils.getInstance(AppUtils.getAppPackageName())
         registerActivityLifecycleCallbacks(AppLifeCycleCallBack())
         ProcessLifecycleOwner.get().lifecycle.addObserver(ForebackLifeObserver())
+        AccessibilityApi.apply {
+            BASE_SERVICE_CLS = MyAccessibilityService::class.java
+        }
         initFloatWindow()
     }
 
